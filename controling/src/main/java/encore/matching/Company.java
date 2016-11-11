@@ -1,59 +1,74 @@
 package encore.matching;
 
-/* Klasa powinna zostaæ encj¹ i zapisywaæ rezyltaty do bazy danych tak aby ³atwo mo¿na by³o ³¹czyæ informacjê z wielu portali.
-Koniecznie dostosuj model do wielu krajów
-Koniecznie uwzglêdnij matchowanie za pomoc¹ wielu kryteriów
-Zbadaj poprawnoœæ nadawania PK - KRYTYCZNE dla dzia³ania mechanizmu matchowania
+/* Klasa powinna zostaÃ¦ encjÂ¹ i zapisywaÃ¦ rezyltaty do bazy danych tak aby Â³atwo moÂ¿na byÂ³o Â³Â¹czyÃ¦ informacjÃª z wielu portali.
+Koniecznie dostosuj model do wielu krajÃ³w
+Koniecznie uwzglÃªdnij matchowanie za pomocÂ¹ wielu kryteriÃ³w
+Zbadaj poprawnoÅ“Ã¦ nadawania PK - KRYTYCZNE dla dziaÂ³ania mechanizmu matchowania
 */
 public class Company {
-	//primary key
+	// primary key
 	private long id;
 	private String companyName;
-	//znaleziona wartoœæ na podstawie której zosta³ wybrany rodzaj spó³ki
+	private String tidyCompanyName=null;
+	// znaleziona wartoÅ“Ã¦ na podstawie ktÃ³rej zostaÂ³ wybrany rodzaj spÃ³Â³ki
 	private String companyTypePatern;
-	//zamkniêta lista rodzajów. Uwzglêdnij inne kraje w przysz³oœci
+	// zamkniÃªta lista rodzajÃ³w. UwzglÃªdnij inne kraje w przyszÂ³oÅ“ci
 	private PolishCompanyType companyType;
+	//firma ma przypisany typ. DomyÅ›lnie false
+	private boolean used; 
+	
+	
+	
 	
 	public long getId() {
 		return id;
 	}
+
 	public void setId(long id) {
 		this.id = id;
 	}
+
 	public String getCompanyName() {
 		return companyName;
 	}
+
 	public void setCompanyName(String companyName) {
 		this.companyName = companyName;
 	}
+
+	public String getTidyCompanyName() {
+		return tidyCompanyName;
+	}
+
+	public void setTidyCompanyName(String tidyCompanyName) {
+		this.tidyCompanyName = tidyCompanyName;
+	}
+
 	public String getCompanyTypePatern() {
 		return companyTypePatern;
 	}
+
 	public void setCompanyTypePatern(String companyTypePatern) {
 		this.companyTypePatern = companyTypePatern;
 	}
+
 	public PolishCompanyType getCompanyType() {
 		return companyType;
 	}
+
 	public void setCompanyType(PolishCompanyType companyType) {
 		this.companyType = companyType;
 	}
-	
+
 	public Company(String companyName) {
 		this.companyName = companyName;
+		this.used=false;
 	}
+
 	@Override
 	public String toString() {
 		return "Company [id=" + id + ", companyName=" + companyName + ", companyTypePatern=" + companyTypePatern
 				+ ", companyType=" + companyType + "]";
 	}
-	
-	
-	
-	
-	
-	
-	
-	
 
 }
