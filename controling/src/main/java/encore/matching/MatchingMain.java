@@ -7,7 +7,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
-import encore.importdata.database.EntityRepository;
+import encore.database.importdata.EntityRepository;
+import encore.database.info.SchemaInformation;
 
 public class MatchingMain {
 
@@ -21,15 +22,9 @@ public class MatchingMain {
 		
 //		System.out.println("czas trwania = "+(stop-start)+",  liczba wykonanych operacji="+matchingRepository.getCounter());
 		
-		
-//		EntityRepository er = new EntityRepository("bbb");
-		EntityManagerFactory entityManagerFactory=Persistence.createEntityManagerFactory("encoreDB");
-		EntityManager entityManager = entityManagerFactory.createEntityManager();
-		
-		entityManager.clear();
-		entityManagerFactory.close();
-		
-		System.out.println("M: The end");
+		EntityRepository firstEntityRepository = new EntityRepository("tabela1");
+		SchemaInformation is = new SchemaInformation();
+		System.out.println("Koniec");
 
 	}
 
