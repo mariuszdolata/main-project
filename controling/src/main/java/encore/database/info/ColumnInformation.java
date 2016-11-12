@@ -8,7 +8,7 @@ package encore.database.info;
 		/**
 		 * 
 		 */
-		private final SchemaInformation ColumnInformation;
+		
 		private String columnName;
 		private String columnType;
 		private boolean columnPK;
@@ -32,12 +32,16 @@ package encore.database.info;
 		
 
 
-		public ColumnInformation(SchemaInformation informationSchema, String columnName, String columnType, boolean columnPK, String tableCatalog,
-				String tableSchema, String tableName, int ordinalPosition, String columnDefault, boolean isNullable,
-				int characterMaximumLength, int characterOctetLength, int numericPrecision, int numericScale,
-				int dateTimePrecision, String characterSetName, String collationName, String extra, String privileges,
-				String collumnComment, String generationExpression) {
-			ColumnInformation = informationSchema;
+		
+
+
+		public ColumnInformation( String columnName, String columnType,
+				boolean columnPK, String tableCatalog, String tableSchema, String tableName, int ordinalPosition,
+				String columnDefault, boolean isNullable, int characterMaximumLength, int characterOctetLength,
+				int numericPrecision, int numericScale, int dateTimePrecision, String characterSetName,
+				String collationName, String extra, String privileges, String collumnComment,
+				String generationExpression) {
+			super();
 			this.columnName = columnName;
 			this.columnType = columnType;
 			this.columnPK = columnPK;
@@ -164,7 +168,7 @@ package encore.database.info;
 
 
 
-		public void setNullable(boolean isNullable) {
+		public void setIsNullable(boolean isNullable) {
 			this.isNullable = isNullable;
 		}
 
@@ -302,13 +306,16 @@ package encore.database.info;
 
 
 
-		public ColumnInformation(SchemaInformation informationSchema, String tableSchema, String tableName, String columnName, String columnType, boolean columnPK) {
-			ColumnInformation = informationSchema;
-			this.tableSchema=tableSchema;
-			this.tableName=tableName;
-			this.columnName = columnName;
-			this.columnType = columnType;
-			this.columnPK = columnPK;
+		@Override
+		public String toString() {
+			return "ColumnInformation [columnName=" + columnName + ", columnType=" + columnType + ", columnPK="
+					+ columnPK + ", tableName=" + tableName + "]";
+		}
+
+
+
+		public ColumnInformation() {
+			
 		}
 
 	}
