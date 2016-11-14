@@ -10,7 +10,11 @@ public class Entity {
 	public Object getEntity(String name){
 		return entity.get(name);
 	}
-	public void setEntity(String name, Object obj){
+	public void putEntity(String name, Object obj){
 		entity.put(name, obj);
 	}
+	public Entity() {
+		
+	}
+	
 }

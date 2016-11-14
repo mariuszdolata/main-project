@@ -23,10 +23,13 @@ public class MatchingMain {
 //		System.out.println("czas trwania = "+(stop-start)+",  liczba wykonanych operacji="+matchingRepository.getCounter());
 		
 		EntityRepository firstEntityRepository = new EntityRepository("localhost", "java", "java", "baza_testowa", "tabela1");
-		
-		TableInformation schemaInformation1 = new TableInformation("localhost", "java", "java", "baza_testowa", "tabela1");
-		TableInformation schemaInformation2 = new TableInformation("localhost", "java", "java", "baza_testowa", "tabela2");
-		
+		EntityRepository secondEntityRepository = new EntityRepository("localhost", "java", "java", "baza_testowa", "tabela2");
+//		firstEntityRepository.createEntityTemplate();
+
+//		
+//		TableInformation schemaInformation1 = new TableInformation("localhost", "java", "java", "baza_testowa", "tabela1");
+//		TableInformation schemaInformation2 = new TableInformation("localhost", "java", "java", "baza_testowa", "tabela2");
+//		
 		
 		System.out.println("Koniec");
 
