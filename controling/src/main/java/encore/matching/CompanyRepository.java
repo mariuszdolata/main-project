@@ -16,6 +16,31 @@ public class CompanyRepository {
 	private String matchedColumn;
 	private List<Company> companies = new ArrayList<Company>();
 	private List<CompanyTypeRegExp> companyTypePattern = new ArrayList<CompanyTypeRegExp>();
+	private EntityRepository entityRepository;
+
+	public String getMatchedColumn() {
+		return matchedColumn;
+	}
+
+	public void setMatchedColumn(String matchedColumn) {
+		this.matchedColumn = matchedColumn;
+	}
+
+	public List<CompanyTypeRegExp> getCompanyTypePattern() {
+		return companyTypePattern;
+	}
+
+	public void setCompanyTypePattern(List<CompanyTypeRegExp> companyTypePattern) {
+		this.companyTypePattern = companyTypePattern;
+	}
+
+	public EntityRepository getEntityRepository() {
+		return entityRepository;
+	}
+
+	public void setEntityRepository(EntityRepository entityRepository) {
+		this.entityRepository = entityRepository;
+	}
 
 	public String getFilePath() {
 		return filePath;
@@ -41,8 +66,9 @@ public class CompanyRepository {
 	}
 
 	public CompanyRepository(EntityRepository entityRepository, String matchedColumn) {
+		this.entityRepository=entityRepository;
 		this.matchedColumn = matchedColumn;
-		this.readCompaniesFromDatabase(entityRepository, matchedColumn);
+		this.readCompaniesFromDatabase();
 		this.addRegExpPattern();
 		this.findCompanyType();
 	}
@@ -61,9 +87,9 @@ public class CompanyRepository {
 		}
 	}
 
-	public void readCompaniesFromDatabase(EntityRepository entityRepository, String matchedColumn) {
-		for (Entity entity : entityRepository.getEntityList()) {
-			companies.add(new Company((String) entity.getEntity(matchedColumn)));
+	public void readCompaniesFromDatabase() {
+		for (Entity entity : this.entityRepository.getEntityList()) {
+			companies.add(new Company((String) entity.getEntity(this.matchedColumn)));
 		}
 	}
 
@@ -88,7 +114,6 @@ public class CompanyRepository {
 		this.companyTypePattern.add(new CompanyTypeRegExp("spp", letter + spolkaPattern + spp + letter));
 		this.companyTypePattern.add(new CompanyTypeRegExp("spk", letter + spolkaPattern + spk + letter));
 		this.companyTypePattern.add(new CompanyTypeRegExp("spa", letter + spolkaPattern + spa + letter));
-
 	}
 
 	public void findCompanyType() {

@@ -13,11 +13,13 @@ public class MatchingMain {
 		String filePath2 = "F:\\p2.txt";
 		long start = System.currentTimeMillis();
 		StringConnector stringConnector = new StringConnector("localhost", "java", "java", "baza_testowa");
-		EntityRepository firstEntityRepository = new EntityRepository(stringConnector,"tabela1");
-		EntityRepository secondEntityRepository = new EntityRepository(stringConnector,	"tabela2");
-		MatchingRepository matchingRepositoryDatabase = new MatchingRepository(stringConnector, firstEntityRepository, "textTab1",
-				secondEntityRepository, "textTab2");
-//		MatchingRepository matchingRepository = new MatchingRepository(filePath1, filePath2);
+		EntityRepository firstEntityRepository = new EntityRepository(stringConnector, "tabela1");
+		EntityRepository secondEntityRepository = new EntityRepository(stringConnector, "tabela2");
+		MatchingRepository matchingRepositoryDatabase = new MatchingRepository(stringConnector, firstEntityRepository,
+				"textTab1", secondEntityRepository, "textTab2");
+		matchingRepositoryDatabase.saveMatchedResults();
+		// MatchingRepository matchingRepository = new
+		// MatchingRepository(filePath1, filePath2);
 		long stop = System.currentTimeMillis();
 
 		System.out.println("Koniec");

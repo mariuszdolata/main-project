@@ -134,23 +134,21 @@ public class MatchingRepository {
 			String dropResiltTableSql = "DROP TABLE IF EXISTS `" + this.getStringConnector().getDefaultSchema()
 					+ "`.`matching_results`;";
 			String createResultTableSql = "CREATE TABLE `" + this.getStringConnector().getDefaultSchema()
-					+ "`.`matching_results` (" + "`id` INT NOT NULL AUTO_INCREMENT," + " `score` INT NULL,"
-					+ " `first_position` INT NULL," + " `second_position` INT NULL," + "PRIMARY KEY (`id`));";
-			
-			String create="CREATE TABLE `"+this.getStringConnector().getDefaultSchema()+"`.`matching_results` (`id` INT NOT NULL AUTO_INCREMENT, `score` INT NULL,  `first_position` INT NULL,  `first_string` VARCHAR(500) NULL,  `second_position` INT NULL,  `second_string` VARCHAR(500) NULL,  PRIMARY KEY (`id`),  INDEX `index1` (`first_string` ASC),  INDEX `index2` (`second_string` ASC));";
+					+ "`.`matching_results` (`id` INT NOT NULL AUTO_INCREMENT, `score` INT NULL,  `first_position` INT NULL,  `first_string` VARCHAR(500) NULL,  `second_position` INT NULL,  `second_string` VARCHAR(500) NULL,  PRIMARY KEY (`id`),  INDEX `index1` (`first_string` ASC),  INDEX `index2` (`second_string` ASC));";
 			// usuniecie tabeli
 			stmt.executeUpdate(dropResiltTableSql);
 			// stworzenie nowej
-			stmt.executeUpdate(create);
+			stmt.executeUpdate(createResultTableSql);
 
 			for (int i = 0; i < firstCompanyRepository.getCompanies().size(); i++) {
 				for (int j = 0; j < secondCompanyRepository.getCompanies().size(); j++) {
 					if (this.distanceTable[i][j] == 0) {
-						String first=firstCompanyRepository.getCompanies().get(i).getCompanyName();
-						String second=secondCompanyRepository.getCompanies().get(j).getCompanyName();
+						String first = firstCompanyRepository.getCompanies().get(i).getCompanyName();
+						String second = secondCompanyRepository.getCompanies().get(j).getCompanyName();
 						String insertSql = "INSERT INTO matching_results (score, first_position, first_string, second_position, second_string) VALUES ("
-								+ (int) this.distanceTable[i][j] + "," + i + ",'"+first+"',"+j+", '"+second+"');";
-						System.out.println(">>>"+insertSql+"<<<");
+								+ (int) this.distanceTable[i][j] + "," + i + ",'" + first + "'," + j + ", '" + second
+								+ "');";
+						System.out.println(">>>" + insertSql + "<<<");
 						stmt.executeUpdate(insertSql);
 					}
 				}
@@ -163,4 +161,69 @@ public class MatchingRepository {
 		}
 
 	}
+
+	public void saveMatchedResults(){
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
+			Connection connection = DriverManager.getConnection("jdbc:mysql://" + this.stringConnector.getUrl() + "/"
+					+ this.getStringConnector().getDefaultSchema() + "?user=" + this.getStringConnector().getUser()
+					+ "&password=" + this.getStringConnector().getPassword() + "&serverTimezone=UTC");
+
+			Statement stmt = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+			
+//			firstCompanyRepository.getEntityRepository().getEntities().get(1).getEntity("id");
+			//ITERACJA NAZW KOLUMN
+			String dropResiltTableSql = "DROP TABLE IF EXISTS `" + this.getStringConnector().getDefaultSchema()
+					+ "`.`matching_results`;";
+			String sqlPart="CREATE TABLE `"+this.getStringConnector().getDefaultSchema()+"`.`matching_results` (";
+			for(int i=0;i<firstCompanyRepository.getEntityRepository().getTableInformation().getColumns().size();i++){
+
+				sqlPart+="`first_"+firstCompanyRepository.getEntityRepository().getTableInformation().getColumns().get(i).getColumnName()+"` "+firstCompanyRepository.getEntityRepository().getTableInformation().getColumns().get(i).getColumnType()+", ";
+				
+			}
+			for(int i=0;i<secondCompanyRepository.getEntityRepository().getTableInformation().getColumns().size();i++){
+
+				sqlPart+="`second_"+secondCompanyRepository.getEntityRepository().getTableInformation().getColumns().get(i).getColumnName()+"` "+secondCompanyRepository.getEntityRepository().getTableInformation().getColumns().get(i).getColumnType()+", ";
+				
+			}
+			sqlPart=sqlPart.substring(0, sqlPart.length()-2);
+			sqlPart+=");";
+			stmt.executeUpdate(dropResiltTableSql);
+			stmt.executeUpdate(sqlPart);
+//			firstCompanyRepository.getEntityRepository().getTableInformation().getColumns().get(3).getColumnType();
+			System.out.println("sqlPart>>>>"+sqlPart+"<<<");
+
+			for (int i = 0; i < firstCompanyRepository.getCompanies().size(); i++) {
+				for (int j = 0; j < secondCompanyRepository.getCompanies().size(); j++) {
+					if (this.distanceTable[i][j] == 0) {
+						String sqlColumnsName="INSERT INTO `"+this.getStringConnector().getDefaultSchema()+"`.`matching_results` (";
+						String sqlColumnsData=" VALUES (";
+						for(int iter1=0;iter1<firstCompanyRepository.getEntityRepository().getTableInformation().getColumns().size();iter1++){
+							sqlColumnsName+=firstCompanyRepository.getEntityRepository().getTableInformation().getColumns().get(iter1).getColumnName()+", ";
+							String columnType=firstCompanyRepository.getEntityRepository().getTableInformation().getColumns().get(iter1).getColumnType();
+							
+							//WSTAW wartoœci z repozytorium do stringów
+//							if(columnType.contains("int")) 
+//							else if( columnType.contains("varchar"))
+//							else sqlColumnsData+="\" \"";
+//							}
+						}
+//						String insertSql = "INSERT INTO matching_results (score, first_position, first_string, second_position, second_string) VALUES ("
+//								+ (int) this.distanceTable[i][j] + "," + i + ",'" + first + "'," + j + ", '" + second
+//								+ "');";
+//						System.out.println(">>>" + insertSql + "<<<");
+//						stmt.executeUpdate(insertSql);
+					}
+				}
+			}
+			
+			connection.close();
+
+		} catch (Exception e) {
+			System.err.println("M: nie uda³o siê zapisaæ wynikow matchowania MatchingRepository->saveResultArray() ");
+			e.printStackTrace();
+		}
+		
+	}
+
 }

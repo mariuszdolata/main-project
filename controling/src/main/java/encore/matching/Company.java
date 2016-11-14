@@ -9,17 +9,14 @@ public class Company {
 	// primary key
 	private long id;
 	private String companyName;
-	private String tidyCompanyName=null;
+	private String tidyCompanyName = null;
 	// znaleziona wartoœæ na podstawie której zosta³ wybrany rodzaj spó³ki
 	private String companyTypePatern;
 	// zamkniêta lista rodzajów. Uwzglêdnij inne kraje w przysz³oœci
 	private PolishCompanyType companyType;
-	//firma ma przypisany typ. Domyślnie false
-	private boolean used; 
-	
-	
-	
-	
+	// firma ma przypisany typ. Domyślnie false
+	private boolean used;
+
 	public long getId() {
 		return id;
 	}
@@ -62,7 +59,7 @@ public class Company {
 
 	public Company(String companyName) {
 		this.companyName = companyName;
-		this.used=false;
+		this.used = false;
 	}
 
 	@Override
