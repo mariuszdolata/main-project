@@ -4,17 +4,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Entity {
-	private Map<String,Object> entity=new HashMap<>();
+	private Map<String, Object> entity = new HashMap<>();
 	private static String pk_name;
 
-	public Object getEntity(String name){
+	public Object getEntity(String name) {
 		return entity.get(name);
 	}
-	public void putEntity(String name, Object obj){
+
+	public void putEntity(String name, Object obj) {
 		entity.put(name, obj);
 	}
+
 	public Entity() {
-		
+
 	}
-	
+
 }

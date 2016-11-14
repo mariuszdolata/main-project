@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import encore.database.info.ColumnInformation;
+import encore.database.info.StringConnector;
 import encore.database.info.TableInformation;
 
 /*Klasa wczytuje informacje nt danej tabeli oraz pobiera w³aœciwe informacje
@@ -32,17 +33,17 @@ public class EntityRepository {
 	private Entity entityTemplate;
 	private List<Entity> entities;
 
-	public EntityRepository(String url, String user, String password, String databaseName, String tableName) {
-		this.databaseName = databaseName;
+	public EntityRepository(StringConnector stringConnector, String tableName) {
+		this.databaseName = stringConnector.getDefaultSchema();
+		this.url = stringConnector.getUrl();
+		this.user = stringConnector.getUser();
+		this.password = stringConnector.getPassword();
 		this.tableName = tableName;
-		this.url = url;
-		this.user = user;
-		this.password = password;
 		this.tableInformation = new TableInformation(this.url, this.user, this.password, this.databaseName,
 				this.tableName);
-		//utworzenie zapytania obejmuj¹cego wszystkie kolumny (dodaj inne typy)
+		// utworzenie zapytania obejmuj¹cego wszystkie kolumny (dodaj inne typy)
 		this.setSqlSelectQuery();
-		//wczytanie danych do List<Entity> entityList
+		// wczytanie danych do List<Entity> entityList
 		this.loadData();
 
 	}
@@ -105,9 +106,9 @@ public class EntityRepository {
 
 			Statement stmt = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
 			ResultSet rs = stmt.executeQuery(this.sqlSelectQuery);
-			//wczytanie rekordów z tabeli
-			while(rs.next()){
-				Entity entity= new Entity();
+			// wczytanie rekordów z tabeli
+			while (rs.next()) {
+				Entity entity = new Entity();
 				for (ColumnInformation columnInformation : this.tableInformation.getColumns()) {
 					String columnName = columnInformation.getColumnName();
 					String columnType = null;
@@ -120,7 +121,7 @@ public class EntityRepository {
 						columnType = "String";
 					else if (columnInformation.getColumnType().contains("timestamp"))
 						columnType = "timestamp";
-					//konkretne dane
+					// konkretne dane
 					Object dataType = null;
 					switch (columnType) {
 					case "int":
@@ -133,17 +134,18 @@ public class EntityRepository {
 						dataType = rs.getTimestamp(columnName);
 						break;
 					}
-					//wstawienie pojedynczej kolumny do obiektu Entiry
+					// wstawienie pojedynczej kolumny do obiektu Entiry
 					entity.putEntity(columnName, dataType);
-					// DODANIE PRZYK£ADOWYCH DANYCH NA PODSTAWIE ISTNIEJ¥CYCH KOLUMN W
+					// DODANIE PRZYK£ADOWYCH DANYCH NA PODSTAWIE ISTNIEJ¥CYCH
+					// KOLUMN W
 					// TABELI
 					entity.putEntity(columnName, dataType);
 					System.out.println("Wstawianie wartoœci:" + dataType);
 				}
-				//Dodanie pojedynczego rekordu do listy
+				// Dodanie pojedynczego rekordu do listy
 				this.getEntityList().add(entity);
 			}
-			
+
 			connection.close();
 
 		} catch (Exception e) {

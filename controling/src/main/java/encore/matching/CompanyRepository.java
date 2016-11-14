@@ -39,8 +39,9 @@ public class CompanyRepository {
 		this.addRegExpPattern();
 		this.findCompanyType();
 	}
-	public CompanyRepository(EntityRepository entityRepository, String matchedColumn){
-		this.matchedColumn=matchedColumn;
+
+	public CompanyRepository(EntityRepository entityRepository, String matchedColumn) {
+		this.matchedColumn = matchedColumn;
 		this.readCompaniesFromDatabase(entityRepository, matchedColumn);
 		this.addRegExpPattern();
 		this.findCompanyType();
@@ -59,9 +60,10 @@ public class CompanyRepository {
 			e.printStackTrace();
 		}
 	}
-	public void readCompaniesFromDatabase(EntityRepository entityRepository, String matchedColumn){
-		for(Entity entity:entityRepository.getEntityList()){
-			companies.add(new Company((String)entity.getEntity(matchedColumn)));
+
+	public void readCompaniesFromDatabase(EntityRepository entityRepository, String matchedColumn) {
+		for (Entity entity : entityRepository.getEntityList()) {
+			companies.add(new Company((String) entity.getEntity(matchedColumn)));
 		}
 	}
 
@@ -71,54 +73,57 @@ public class CompanyRepository {
 		}
 	}
 
-	public void addRegExpPattern(){
-		String spolkaPattern="(\\W)+([s]{1}[.]?[ ]?[p]?[.]?[ ]?|[s]{1}[p]{1}[.]?[ ]?|spó³ka )";		                
-		String letter="(?![\\p{L}])";
-		
-		
-		String spzoo="[ ]*([z][ ]?[o][.]?[ ]?[o][.]?|z ograniczon¹ odpowiedzialnoœci¹)";
-		String spj=   "[ ]*([j][.]?[ ]?|jawna)";
-		String spp="[ ]*([p]{2}[.]?[ ]?|partnerska)";
-		String spk="[ ]*([k]{1}[.]?[ ]?|komandytowa)";
-		String spa="([a]{1}[.]?[ ]?|akcyjna)";	
-		
-		this.companyTypePattern.add(new CompanyTypeRegExp("spzoo", letter+spolkaPattern+spzoo+letter));
-		this.companyTypePattern.add(new CompanyTypeRegExp("spj", letter+spolkaPattern+spj+letter));
-		this.companyTypePattern.add(new CompanyTypeRegExp("spp", letter+spolkaPattern+spp+letter));
-		this.companyTypePattern.add(new CompanyTypeRegExp("spk", letter+spolkaPattern+spk+letter));
-		this.companyTypePattern.add(new CompanyTypeRegExp("spa", letter+spolkaPattern+spa+letter));
-		
+	public void addRegExpPattern() {
+		String spolkaPattern = "(\\W)+([s]{1}[.]?[ ]?[p]?[.]?[ ]?|[s]{1}[p]{1}[.]?[ ]?|spó³ka )";
+		String letter = "(?![\\p{L}])";
+
+		String spzoo = "[ ]*([z][ ]?[o][.]?[ ]?[o][.]?|z ograniczon¹ odpowiedzialnoœci¹)";
+		String spj = "[ ]*([j][.]?[ ]?|jawna)";
+		String spp = "[ ]*([p]{2}[.]?[ ]?|partnerska)";
+		String spk = "[ ]*([k]{1}[.]?[ ]?|komandytowa)";
+		String spa = "([a]{1}[.]?[ ]?|akcyjna)";
+
+		this.companyTypePattern.add(new CompanyTypeRegExp("spzoo", letter + spolkaPattern + spzoo + letter));
+		this.companyTypePattern.add(new CompanyTypeRegExp("spj", letter + spolkaPattern + spj + letter));
+		this.companyTypePattern.add(new CompanyTypeRegExp("spp", letter + spolkaPattern + spp + letter));
+		this.companyTypePattern.add(new CompanyTypeRegExp("spk", letter + spolkaPattern + spk + letter));
+		this.companyTypePattern.add(new CompanyTypeRegExp("spa", letter + spolkaPattern + spa + letter));
+
 	}
+
 	public void findCompanyType() {
 
-		
-		
-		
-		int i=1;
+		int i = 1;
 		for (Company company : companies) {
 			String companyName = company.getCompanyName();
-			//String patternString = proba;
-			//String patternString ="[s]{1}[.]?[ ]?[a]{1}[.]?[ ]?";
-			for(CompanyTypeRegExp reg:companyTypePattern){
-				Pattern pattern=Pattern.compile(reg.getRegexp(),  Pattern.CASE_INSENSITIVE);
+			// String patternString = proba;
+			// String patternString ="[s]{1}[.]?[ ]?[a]{1}[.]?[ ]?";
+			for (CompanyTypeRegExp reg : companyTypePattern) {
+				Pattern pattern = Pattern.compile(reg.getRegexp(), Pattern.CASE_INSENSITIVE);
 				Matcher matcher = pattern.matcher(companyName);
-//				boolean matcherFound=false;
-				while(matcher.find()){ //zmiana while na IF (jeœli znaleziono rodzaj spó³ki
-//					System.out.println(Integer.toString(i++) + "=>>>>>" + matcher.group() + "<<<<<"+reg.getCompanyType()+"=>" + companyName);
-					company.setTidyCompanyName((String) companyName.trim().toUpperCase().subSequence(0, matcher.start()));
-//					System.out.println("companyName="+company.getTidyCompanyName()+"<");
-//					matcherFound=true;
-				}if(company.getTidyCompanyName()==null){ //jeœli nie znaleziono spó³ki
+				// boolean matcherFound=false;
+				while (matcher.find()) { // zmiana while na IF (jeœli znaleziono
+											// rodzaj spó³ki
+					// System.out.println(Integer.toString(i++) + "=>>>>>" +
+					// matcher.group() + "<<<<<"+reg.getCompanyType()+"=>" +
+					// companyName);
+					company.setTidyCompanyName(
+							(String) companyName.trim().toUpperCase().subSequence(0, matcher.start()));
+					// System.out.println("companyName="+company.getTidyCompanyName()+"<");
+					// matcherFound=true;
+				}
+				if (company.getTidyCompanyName() == null) { // jeœli nie
+															// znaleziono spó³ki
 					company.setTidyCompanyName((String) companyName.toUpperCase());
 				}
-				//trim dla wszystkich nazw firm - elminuje spacjê na koñcu 
-				//wiele spacji=> jedna spacja
-				//kropka na spacje
-				company.setTidyCompanyName(company.getTidyCompanyName().trim().replaceAll("( )+"," ").replaceAll("[.]", " ")); 
+				// trim dla wszystkich nazw firm - elminuje spacjê na koñcu
+				// wiele spacji=> jedna spacja
+				// kropka na spacje
+				company.setTidyCompanyName(
+						company.getTidyCompanyName().trim().replaceAll("( )+", " ").replaceAll("[.]", " "));
 			}
 		}
 
 	}
-	
-	
+
 }
