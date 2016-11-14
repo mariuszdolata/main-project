@@ -17,13 +17,15 @@ public class MatchingMain {
 		String filePath1="F:\\p1.txt";
 		String filePath2="F:\\p2.txt";
 		long start=System.currentTimeMillis();
-//		MatchingRepository matchingRepository = new MatchingRepository(filePath1, filePath2);
+		EntityRepository firstEntityRepository = new EntityRepository("localhost", "java", "java", "baza_testowa", "tabela1");
+		EntityRepository secondEntityRepository = new EntityRepository("localhost", "java", "java", "baza_testowa", "tabela2");
+		MatchingRepository matchingRepositoryDatabase = new MatchingRepository(firstEntityRepository, "textTab1", secondEntityRepository, "textTab2");
+		MatchingRepository matchingRepository = new MatchingRepository(filePath1, filePath2);
 		long stop = System.currentTimeMillis();
 		
 //		System.out.println("czas trwania = "+(stop-start)+",  liczba wykonanych operacji="+matchingRepository.getCounter());
 		
-		EntityRepository firstEntityRepository = new EntityRepository("localhost", "java", "java", "baza_testowa", "tabela1");
-		EntityRepository secondEntityRepository = new EntityRepository("localhost", "java", "java", "baza_testowa", "tabela2");
+		
 //		firstEntityRepository.createEntityTemplate();
 
 //		

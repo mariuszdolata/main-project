@@ -8,8 +8,12 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import encore.database.importdata.Entity;
+import encore.database.importdata.EntityRepository;
+
 public class CompanyRepository {
 	private String filePath;
+	private String matchedColumn;
 	private List<Company> companies = new ArrayList<Company>();
 	private List<CompanyTypeRegExp> companyTypePattern = new ArrayList<CompanyTypeRegExp>();
 
@@ -33,6 +37,13 @@ public class CompanyRepository {
 		this.filePath = filePath;
 		this.readCompaniesFromTextFile(this.filePath);
 		this.addRegExpPattern();
+		this.findCompanyType();
+	}
+	public CompanyRepository(EntityRepository entityRepository, String matchedColumn){
+		this.matchedColumn=matchedColumn;
+		this.readCompaniesFromDatabase(entityRepository, matchedColumn);
+		this.addRegExpPattern();
+		this.findCompanyType();
 	}
 
 	public void readCompaniesFromTextFile(String filePath) throws IOException {
@@ -46,6 +57,11 @@ public class CompanyRepository {
 			System.err
 					.println("M: Unable to read file from readCompaniesFromTextFile method in CompanyRepository class");
 			e.printStackTrace();
+		}
+	}
+	public void readCompaniesFromDatabase(EntityRepository entityRepository, String matchedColumn){
+		for(Entity entity:entityRepository.getEntityList()){
+			companies.add(new Company((String)entity.getEntity(matchedColumn)));
 		}
 	}
 
