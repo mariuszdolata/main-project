@@ -16,8 +16,8 @@ public class MatchingMain {
 		EntityRepository firstEntityRepository = new EntityRepository(stringConnector, "tabela1");
 		EntityRepository secondEntityRepository = new EntityRepository(stringConnector, "tabela2");
 		MatchingRepository matchingRepositoryDatabase = new MatchingRepository(stringConnector, firstEntityRepository,
-				"textTab1", secondEntityRepository, "textTab2");
-		matchingRepositoryDatabase.saveMatchedResults();
+				"firma", secondEntityRepository, "firma");
+		// matchingRepositoryDatabase.saveMatchedResults();
 		// MatchingRepository matchingRepository = new
 		// MatchingRepository(filePath1, filePath2);
 		long stop = System.currentTimeMillis();

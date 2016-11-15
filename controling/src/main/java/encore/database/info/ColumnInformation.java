@@ -1,9 +1,6 @@
 package encore.database.info;
 
-
 public class ColumnInformation {
-
-
 
 	private String columnName;
 	private String columnType;

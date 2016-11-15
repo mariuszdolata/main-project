@@ -66,7 +66,7 @@ public class CompanyRepository {
 	}
 
 	public CompanyRepository(EntityRepository entityRepository, String matchedColumn) {
-		this.entityRepository=entityRepository;
+		this.entityRepository = entityRepository;
 		this.matchedColumn = matchedColumn;
 		this.readCompaniesFromDatabase();
 		this.addRegExpPattern();
