@@ -175,11 +175,12 @@ public class MatchingRepository {
 			// ITERACJA NAZW KOLUMN
 			String dropResiltTableSql = "DROP TABLE IF EXISTS `" + this.getStringConnector().getDefaultSchema()
 					+ "`.`matching_results`;";
-			String sqlPart = "CREATE TABLE `" + this.getStringConnector().getDefaultSchema() + "`.`matching_results` (";
+			String sqlCreateTable = "CREATE TABLE `" + this.getStringConnector().getDefaultSchema()
+					+ "`.`matching_results` (";
 			for (int i = 0; i < firstCompanyRepository.getEntityRepository().getTableInformation().getColumns()
 					.size(); i++) {
 
-				sqlPart += "`first_"
+				sqlCreateTable += "`first_"
 						+ firstCompanyRepository.getEntityRepository().getTableInformation().getColumns().get(i)
 								.getColumnName()
 						+ "` " + firstCompanyRepository.getEntityRepository().getTableInformation().getColumns().get(i)
@@ -190,7 +191,7 @@ public class MatchingRepository {
 			for (int i = 0; i < secondCompanyRepository.getEntityRepository().getTableInformation().getColumns()
 					.size(); i++) {
 
-				sqlPart += "`second_"
+				sqlCreateTable += "`second_"
 						+ secondCompanyRepository.getEntityRepository().getTableInformation().getColumns().get(i)
 								.getColumnName()
 						+ "` " + secondCompanyRepository.getEntityRepository().getTableInformation().getColumns().get(i)
@@ -198,28 +199,44 @@ public class MatchingRepository {
 						+ ", ";
 
 			}
-			sqlPart = sqlPart.substring(0, sqlPart.length() - 2);
-			sqlPart += ");";
+			sqlCreateTable = sqlCreateTable.substring(0, sqlCreateTable.length() - 2);
+			sqlCreateTable += ");";
 			stmt.executeUpdate(dropResiltTableSql);
-			stmt.executeUpdate(sqlPart);
+			stmt.executeUpdate(sqlCreateTable);
 			// firstCompanyRepository.getEntityRepository().getTableInformation().getColumns().get(3).getColumnType();
-			System.out.println("sqlPart>>>>" + sqlPart + "<<<");
+			System.out.println("sqlPart>>>>" + sqlCreateTable + "<<<");
+
+			String sqlColumnsName = "INSERT INTO `" + this.getStringConnector().getDefaultSchema()
+					+ "`.`matching_results` (";
+			// kolumny z pierwszej tabeli
+			for (int iter1 = 0; iter1 < firstCompanyRepository.getEntityRepository().getTableInformation().getColumns()
+					.size(); iter1++) {
+				String columnName = firstCompanyRepository.getEntityRepository().getTableInformation().getColumns()
+						.get(iter1).getColumnName();
+				sqlColumnsName += "first_" + columnName + ", ";
+			}
+			// kolumny z drugiej tabeli
+			for (int iter1 = 0; iter1 < secondCompanyRepository.getEntityRepository().getTableInformation().getColumns()
+					.size(); iter1++) {
+				String columnName = secondCompanyRepository.getEntityRepository().getTableInformation().getColumns()
+						.get(iter1).getColumnName();
+				sqlColumnsName += "second_" + columnName + ", ";
+			}
+			sqlColumnsName = sqlColumnsName.substring(0, sqlColumnsName.length() - 2);
+			sqlColumnsName += ") VALUES ";
+			String sqlColumnsData = " ";
+			int insertIteration = 0;
 
 			for (int i = 0; i < firstCompanyRepository.getCompanies().size(); i++) {
 				for (int j = 0; j < secondCompanyRepository.getCompanies().size(); j++) {
 					if (this.distanceTable[i][j] == 0) {
-						String sqlColumnsName = "INSERT INTO `" + this.getStringConnector().getDefaultSchema()
-								+ "`.`matching_results` (";
-						String sqlColumnsData = " VALUES (";
+						insertIteration++;
+						sqlColumnsData += "(";
 						// kolumny z pierwszej tabeli
 						for (int iter1 = 0; iter1 < firstCompanyRepository.getEntityRepository().getTableInformation()
 								.getColumns().size(); iter1++) {
 							String columnName = firstCompanyRepository.getEntityRepository().getTableInformation()
 									.getColumns().get(iter1).getColumnName();
-							sqlColumnsName += "first_" + columnName + ", ";
-							// String
-							// columnType=firstCompanyRepository.getEntityRepository().getTableInformation().getColumns().get(iter1).getColumnType();
-
 							// wartoœæ konkretnej kolumny
 							Object columnValue = firstCompanyRepository.getEntityRepository().getEntityList().get(i)
 									.getEntity(columnName);
@@ -230,28 +247,34 @@ public class MatchingRepository {
 								.getColumns().size(); iter1++) {
 							String columnName = secondCompanyRepository.getEntityRepository().getTableInformation()
 									.getColumns().get(iter1).getColumnName();
-							sqlColumnsName += "second_" + columnName + ", ";
-							// String
-							// columnType=firstCompanyRepository.getEntityRepository().getTableInformation().getColumns().get(iter1).getColumnType();
 
 							// wartoœæ konkretnej kolumny
 							Object columnValue = secondCompanyRepository.getEntityRepository().getEntityList().get(j)
 									.getEntity(columnName);
 							sqlColumnsData += "'" + String.valueOf(columnValue) + "', ";
 						}
-
-						sqlColumnsName = sqlColumnsName.substring(0, sqlColumnsName.length() - 2);
-						sqlColumnsName += ") ";
 						sqlColumnsData = sqlColumnsData.substring(0, sqlColumnsData.length() - 2);
-						sqlColumnsData += ");";
-						String sqlInsertEntity = sqlColumnsName + sqlColumnsData;
-						// System.out.println("INSERT>>>>"+sqlInsertEntity);
-						//
-						stmt.executeUpdate(sqlInsertEntity);
+						sqlColumnsData += "), ";
+						//INSERT multiple row
+						if (insertIteration % 100 == 0) {
+							sqlColumnsData = sqlColumnsData.substring(0, sqlColumnsData.length() - 2);
+							System.out.println("SQLCOLUMNDATA>>>" + sqlColumnsData);
+							String sqlInsertEntity = sqlColumnsName + sqlColumnsData;
+							System.out.println("INSERT>>>>" + sqlInsertEntity);
+							stmt.executeUpdate(sqlInsertEntity);
+							sqlColumnsData = "";
+						}
 					}
 				}
 			}
-
+			
+			//wstawienie reszty 
+			sqlColumnsData = sqlColumnsData.substring(0, sqlColumnsData.length() - 2);
+			System.out.println("SQLCOLUMNDATA>>>" + sqlColumnsData);
+			String sqlInsertEntity = sqlColumnsName + sqlColumnsData;
+			System.out.println("INSERT>>>>" + sqlInsertEntity);
+			stmt.executeUpdate(sqlInsertEntity);
+			sqlColumnsData = "";
 			connection.close();
 
 		} catch (Exception e) {
