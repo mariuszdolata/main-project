@@ -1,10 +1,15 @@
 package encore.matching;
 
-/* Klasa powinna zostaæ encj¹ i zapisywaæ rezyltaty do bazy danych tak aby ³atwo mo¿na by³o ³¹czyæ informacjê z wielu portali.
-Koniecznie dostosuj model do wielu krajów
-Koniecznie uwzglêdnij matchowanie za pomoc¹ wielu kryteriów
-Zbadaj poprawnoœæ nadawania PK - KRYTYCZNE dla dzia³ania mechanizmu matchowania
-*/
+/**
+ * Klasa bedaca encja pojedynczej firmy. <BR>
+ * zawiera tylko podstawowe dane sluzace do matchowania w tym String
+ * <b>comanyName</b> oraz <b>tidyCompanyName</b> czyli wyczyszczona wersje
+ * companyName. <BR>
+ * do matchowania wykorzystywane jest pole <b>tidyCompanyName</b>
+ * 
+ * @author Mariusz Dolata
+ *
+ */
 public class Company {
 	// primary key
 	private long id;

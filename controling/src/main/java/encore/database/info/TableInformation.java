@@ -7,12 +7,22 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Klasa przechowujaca dane tabeli takie jak liczba kolumn, nazwy oraz typy
+ * 
+ * @author Mariusz Dolata @2016
+ *
+ */
 public class TableInformation {
 	private String databaseName;
 	private String tableName;
 	private String url;
 	private String user;
 	private String password;
+
+	/**
+	 * Lista wszystkich kolumn wraz z informacjami o typie
+	 */
 	private List<ColumnInformation> columns = new ArrayList<ColumnInformation>();
 
 	public TableInformation(String url, String user, String password, String databaseName, String tableName) {

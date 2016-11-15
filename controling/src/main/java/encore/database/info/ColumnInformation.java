@@ -1,5 +1,10 @@
 package encore.database.info;
 
+
+/**Klasa przechowujaca informacje o pojedynczej kolumnie w tabeli
+ * @author Mariusz Dolata
+ *
+ */
 public class ColumnInformation {
 
 	private String columnName;

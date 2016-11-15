@@ -14,25 +14,38 @@ import encore.database.info.ColumnInformation;
 import encore.database.info.StringConnector;
 import encore.database.info.TableInformation;
 
-/*Klasa wczytuje informacje nt danej tabeli oraz pobiera w³aœciwe informacje
+/**
+ * Klasa wczytujaca dane z tabeli do <b> entityList</b>
  * 
- * 
+ * @author Mariusz Dolata
+ *
  */
-
 public class EntityRepository {
+	/**
+	 * Lista wczytanych firm
+	 */
 	private List<Entity> entityList = new ArrayList<Entity>();
 	private String databaseName;
 	private String tableName;
 	private String url;
 	private String user;
 	private String password;
+	/**
+	 * Przechowuje informacje o tabeli (nazwy oraz typy wszytkich kolumn)
+	 */
 	private TableInformation tableInformation;
 	private String sqlSelectQuery;
 	// wygenerowany pojedynczy rekord maj¹cy strukturê wczytywanej tabeli.
 	// zmieniaj¹c tylko Object w HashMap bêd¹ dodawane kolejne obiekty
 	private Entity entityTemplate;
-	private List<Entity> entities;
 
+	/**
+	 * @param stringConnector
+	 *            - informacje do polaczenia z serwerem mysql (url, user,
+	 *            password, default_Schema)
+	 * @param tableName
+	 *            - nazwa tabeli do wczytania
+	 */
 	public EntityRepository(StringConnector stringConnector, String tableName) {
 		this.databaseName = stringConnector.getDefaultSchema();
 		this.url = stringConnector.getUrl();
@@ -48,42 +61,10 @@ public class EntityRepository {
 
 	}
 
-	@SuppressWarnings("deprecation")
-	public void createEntityTemplate() {
-		this.entityTemplate = new Entity();
-		for (ColumnInformation ci : this.tableInformation.getColumns()) {
-			String columnName = ci.getColumnName();
-			String columnType = null;
-			// wykrycie obiektu
-			if (ci.getColumnType().contains("int"))
-				columnType = "int";
-			else if (ci.getColumnType().contains("varchar"))
-				columnType = "String";
-			else if (ci.getColumnType().contains("text"))
-				columnType = "String";
-			else if (ci.getColumnType().contains("timestamp"))
-				columnType = "timestamp";
-			Object dataType = null;
-			switch (columnType) {
-			case "int":
-				dataType = (int) 0;
-				break;
-			case "String":
-				dataType = (String) "text";
-				break;
-			case "timestamp":
-				dataType = new Timestamp(116, 11, 14, 10, 25, 30, 20);
-				break;
-			}
-			// DODANIE PRZYK£ADOWYCH DANYCH NA PODSTAWIE ISTNIEJ¥CYCH KOLUMN W
-			// TABELI
-			this.entityTemplate.putEntity(columnName, dataType);
-			System.out.println("Wstawianie wartoœci:" + dataType);
-		}
-		System.out.println("Koniec wstawiania przyk³adowych danych");
-		// this.entityTemplate.setEntity(name, obj);
-	}
-
+	/**
+	 * Metoda tworzaca zapytanie SELECT uwzgledniajace wszystkie kolumny w
+	 * tabeli
+	 */
 	public void setSqlSelectQuery() {
 		this.sqlSelectQuery = "SELECT ";
 		for (ColumnInformation columnInformation : this.tableInformation.getColumns()) {
@@ -98,6 +79,9 @@ public class EntityRepository {
 
 	}
 
+	/**
+	 * Metoda wczytujaca dane do entityList
+	 */
 	public void loadData() {
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
@@ -220,14 +204,6 @@ public class EntityRepository {
 		this.entityTemplate = entityTemplate;
 	}
 
-	public List<Entity> getEntities() {
-		return entities;
-	}
-
-	public void setEntities(List<Entity> entities) {
-		this.entities = entities;
-	}
-
 	public TableInformation getTableInformation() {
 		return tableInformation;
 	}
@@ -238,21 +214,5 @@ public class EntityRepository {
 				+ tableName + ", url=" + url + ", user=" + user + ", password=" + password + ", tableInformation="
 				+ tableInformation + "]";
 	}
-
-	// WYWAL!!!!!!!!!!!!!
-	// public void getTableInformation() {
-	// EntityManagerFactory entityManagerFactory =
-	// Persistence.createEntityManagerFactory("encore");
-	// EntityManager entityManager = entityManagerFactory.createEntityManager();
-	// entityManager.getTransaction().begin();
-	// String sql = "SELECT id, tabela1str, tabela1data FROM Tabela1 WHERE
-	// id<3";
-	// Query query = entityManager.createQuery(sql);
-	// List<Tabela1> tabList = query.getResultList();
-	// entityManager.getTransaction().commit();
-	// entityManager.close();
-	// entityManagerFactory.close();
-	//
-	// }
 
 }

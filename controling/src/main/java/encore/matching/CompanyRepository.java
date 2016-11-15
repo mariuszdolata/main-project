@@ -11,9 +11,25 @@ import java.util.regex.Pattern;
 import encore.database.importdata.Entity;
 import encore.database.importdata.EntityRepository;
 
+/**
+ * Klasa
+ * 
+ * @author Mariusz Dolata
+ *
+ */
 public class CompanyRepository {
+	/**
+	 * sciezka do pliku zrodlowego
+	 */
 	private String filePath;
+
+	/**
+	 * Nazwa kolumny z tabeli przeznaczona do matchowania
+	 */
 	private String matchedColumn;
+	/**
+	 * Lista wczytanych z pliku/tabeli firm
+	 */
 	private List<Company> companies = new ArrayList<Company>();
 	private List<CompanyTypeRegExp> companyTypePattern = new ArrayList<CompanyTypeRegExp>();
 	private EntityRepository entityRepository;
@@ -99,6 +115,10 @@ public class CompanyRepository {
 		}
 	}
 
+	/**
+	 * Metoda tworzaca wyrazenia regularne dla roznych rodzajow spolek. <BR>
+	 * Istnieje mozliwosc rozbudowy o kolejne rodzaje
+	 */
 	public void addRegExpPattern() {
 		String spolkaPattern = "(\\W)+([s]{1}[.]?[ ]?[p]?[.]?[ ]?|[s]{1}[p]{1}[.]?[ ]?|spó³ka )";
 		String letter = "(?![\\p{L}])";
@@ -116,6 +136,14 @@ public class CompanyRepository {
 		this.companyTypePattern.add(new CompanyTypeRegExp("spa", letter + spolkaPattern + spa + letter));
 	}
 
+	/**
+	 * Metoda robi: <BR>
+	 * - usuwa rodzaje spolek <BR>
+	 * - usuwa nadmierne biale znaki <BR>
+	 * - zamienia kropki na spacje <BR>
+	 * - zamiana malych na wielkie litery <BR>
+	 * - zamiana wielu spacji na jedna spacje
+	 */
 	public void findCompanyType() {
 
 		int i = 1;
@@ -129,21 +157,13 @@ public class CompanyRepository {
 				// boolean matcherFound=false;
 				while (matcher.find()) { // zmiana while na IF (jeœli znaleziono
 											// rodzaj spó³ki
-					// System.out.println(Integer.toString(i++) + "=>>>>>" +
-					// matcher.group() + "<<<<<"+reg.getCompanyType()+"=>" +
-					// companyName);
 					company.setTidyCompanyName(
 							(String) companyName.trim().toUpperCase().subSequence(0, matcher.start()));
-					// System.out.println("companyName="+company.getTidyCompanyName()+"<");
-					// matcherFound=true;
 				}
 				if (company.getTidyCompanyName() == null) { // jeœli nie
 															// znaleziono spó³ki
 					company.setTidyCompanyName((String) companyName.toUpperCase());
 				}
-				// trim dla wszystkich nazw firm - elminuje spacjê na koñcu
-				// wiele spacji=> jedna spacja
-				// kropka na spacje
 				company.setTidyCompanyName(
 						company.getTidyCompanyName().trim().replaceAll("( )+", " ").replaceAll("[.]", " "));
 			}

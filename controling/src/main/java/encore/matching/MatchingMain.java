@@ -5,6 +5,19 @@ import java.io.IOException;
 import encore.database.importdata.EntityRepository;
 import encore.database.info.StringConnector;
 
+/**
+ * Klasa "main" sluzaca do matchowania firm z dwoch zrodel (plik lub tabela).
+ * <BR>
+ * Dla porownania firm z dwoch tabel wywolaj <b>matchingRepository</b> z
+ * obiektem stringConnector oraz dwoma zrodlami danych (obiekt @See
+ * EntityRepository) <BR>
+ * Dla porownania firm z dwoch plikow tekstowych wywolaj
+ * <b>matchingRepository</b> z parametrami String <b>filePath1</b> oraz String
+ * <b>filePath2</b>
+ * 
+ * @author Mariusz Dolata @2016
+ * @See EntityRepository
+ */
 public class MatchingMain {
 
 	public static void main(String[] args) throws IOException {
@@ -17,9 +30,7 @@ public class MatchingMain {
 		EntityRepository secondEntityRepository = new EntityRepository(stringConnector, "tabela2");
 		MatchingRepository matchingRepositoryDatabase = new MatchingRepository(stringConnector, firstEntityRepository,
 				"firma", secondEntityRepository, "firma");
-		// matchingRepositoryDatabase.saveMatchedResults();
-		// MatchingRepository matchingRepository = new
-		// MatchingRepository(filePath1, filePath2);
+
 		long stop = System.currentTimeMillis();
 
 		System.out.println("Koniec");

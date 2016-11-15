@@ -79,7 +79,7 @@ public class TicketRepository {
 		
 	public void readFromFile(){
 		try {
-			JsonReader jsonReader = new JsonReader(new FileReader("F:\\raport 14.11.json"));
+			JsonReader jsonReader = new JsonReader(new FileReader("F:/raport 15.11_2.json"));
 			System.out.println("Reading from json file complited.");
 			jsonReader.beginObject();
 			//readFromShortFile(jsonReader);

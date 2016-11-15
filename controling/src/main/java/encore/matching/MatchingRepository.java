@@ -12,11 +12,80 @@ import encore.database.info.ColumnInformation;
 import encore.database.info.StringConnector;
 import info.debatty.java.stringsimilarity.Levenshtein;
 
+/**
+ * Klasa MatchingRepository matchuje dwa dowolne zbiory firm CompanyRepository
+ * (z pliku tekstowego lub bazy danych SQL). Dla u³¹twienia matchowania
+ * porównywane ci¹gi znaków s¹ czyszone z niepotrzebnych bia³ych znaków, kropek
+ * czy typów spó³ek. Wielkoœæ znaków nie ma znaczenia w matchowaniu.
+ * 
+ * Domyœlnym algorytmem jest nieznormalizowany Levenshtein distance. Istnieje
+ * mo¿liwoœæ zmiany algorytmu na znormalizowane ale koniecznie trzeba dostosowaæ
+ * tablicê byte distanceTable[][] na float distanceTable[][]
+ * 
+ * <BR>
+ * <BR>
+ * Dla algorytmu niezmormalizowanego <BR>
+ * <B>private int condition=0;</B>
+ * 
+ * <BR>
+ * <BR>
+ * Dla algorytmu znormalizowanego <BR>
+ * <B>private int condition=1</B>
+ * 
+ * @author Mariusz Dolata @2016
+ *
+ */
+
 public class MatchingRepository {
+	/**
+	 * Pierwsze zród³o danych z pliku tekstowego lub tabeli
+	 * 
+	 * @author Mariusz Dolata
+	 *
+	 */
 	private CompanyRepository firstCompanyRepository;
+	/**
+	 * Drugie zród³o danych z pliku tekstowego lub tabeli
+	 * 
+	 * @author Mariusz Dolata
+	 *
+	 */
 	private CompanyRepository secondCompanyRepository;
+	/**
+	 * <B>int condition;</B><BR>
+	 * dla algorytmu nieznormalizowanego = <B>0</b> <BR>
+	 * dla algorytmu znormalizowanego = <B>1</b>
+	 * 
+	 * @author Mariusz Dolata
+	 *
+	 */
+	private int condition = 0;
+	/**
+	 * String connector przechowuje <BR>
+	 * <B>String url</B><BR>
+	 * <B>String user</B><BR>
+	 * <B>String password</B><BR>
+	 * <B>String defaultSchema</B><BR>
+	 * 
+	 * @author Mariusz Dolata
+	 *
+	 */
 	private StringConnector stringConnector;
+	/**
+	 * <B>int counter</b> zlicza liczbê porównañ niepustych stringów
+	 * 
+	 * @author mariusz
+	 *
+	 */
 	private int counter = 0;
+	/**
+	 * Dwuwymiarowa tablica przechowuje wynik matchowania.
+	 * distanceTable[liczba_firm_firstCompanyRepository][liczba_firm_secondCompanyRepository].
+	 * Domyœlnie ustawiony jest algorytm "Levenshtein distance"
+	 * 
+	 * @author mariusz
+	 *
+	 */
 	private byte[][] distanceTable;
 
 	public int getCounter() {
@@ -59,6 +128,16 @@ public class MatchingRepository {
 		this.stringConnector = stringConnector;
 	}
 
+	/**
+	 * Konstruktor dla zród³a danych podawanych w pliku
+	 * 
+	 * @param filePath1
+	 *            - œcie¿ka do pierwszego pliku
+	 * @param filePath2
+	 *            - œcie¿ka do drugiego pliku
+	 * @author mariusz
+	 *
+	 */
 	public MatchingRepository(String filePath1, String filePath2) throws IOException {
 		super();
 		this.firstCompanyRepository = new CompanyRepository(filePath1);
@@ -67,10 +146,28 @@ public class MatchingRepository {
 		this.printMatchingResults();
 	}
 
+	/**
+	 * Konstruktor dla zród³a danych w tabeli SQL
+	 * 
+	 * @param stringConnector
+	 *            - przechowuje dane do serwera sql url, user, password,
+	 *            default_schema
+	 * @param firstCompanyRepository
+	 *            - pierwsze zród³o danych
+	 * @param firstMatchedColumn
+	 *            - nazwa kolumny do matchowania dla pierwszego zród³a
+	 * @param secondCompanyRepository
+	 *            - drugie zród³o danych
+	 * @param secondMatchedColumn
+	 *            - nazwa kolumny do matchowania dla drugiego zród³a
+	 * @author mariusz
+	 *
+	 */
+
 	public MatchingRepository(StringConnector stringConnector, EntityRepository firstEntityRepository,
-			String firstfirstMatchedColumn, EntityRepository secondEntityRepository, String secondMatchedColumn) {
+			String firstMatchedColumn, EntityRepository secondEntityRepository, String secondMatchedColumn) {
 		this.stringConnector = stringConnector;
-		this.firstCompanyRepository = new CompanyRepository(firstEntityRepository, firstfirstMatchedColumn);
+		this.firstCompanyRepository = new CompanyRepository(firstEntityRepository, firstMatchedColumn);
 		this.secondCompanyRepository = new CompanyRepository(secondEntityRepository, secondMatchedColumn);
 		this.startMatching(firstCompanyRepository, secondCompanyRepository);
 		this.printMatchingResults();
@@ -78,6 +175,16 @@ public class MatchingRepository {
 		this.saveMatchedResults();
 	}
 
+	/**
+	 * Metoda porównuj¹ca 2 stringi. <B>Levenshtein levenhstein = new
+	 * Levenhstein()</b> - tutaj nastêpuje wybór algorytmu. <BR >
+	 * Istnieje mo¿liwoœæ zmiany na inne (zobacz dokumentacjê info.debatty)
+	 * 
+	 * @param firstCompanyRepository
+	 *            - pierwsze zród³o danych do porównania
+	 * @param secondCompanyRepository
+	 *            - drugie zród³o danych do porównania
+	 */
 	public void startMatching(CompanyRepository firstCompanyRepository, CompanyRepository secondCompanyRepository) {
 
 		// inicjalizacja tabeli wyników uzale¿niona od liczby stringów w
@@ -110,6 +217,10 @@ public class MatchingRepository {
 		}
 	}
 
+	/**
+	 * Funkcja wyrzucaj¹ca wynik porównania na consolê
+	 * 
+	 */
 	public void printMatchingResults() {
 		for (int i = 0; i < firstCompanyRepository.getCompanies().size(); i++) {
 			for (int j = 0; j < secondCompanyRepository.getCompanies().size(); j++) {
@@ -123,6 +234,15 @@ public class MatchingRepository {
 		}
 	}
 
+	/**
+	 * Medoda zapisujaca wyniki w formie uproszczonej do tabeli
+	 * <B>matching_result</b> <BR>
+	 * do kolumn <b>id</b> (INT), PK, AI <b>score</b> (INT),
+	 * <b>first_position</b> (INT), <b>first_string</b> (VARCHAR),
+	 * <b>second_position</b> (INT), <b>second_string</b> (VARCHAR) <BR>
+	 * Metoda niezalecana. Zalecana jest saveMatchedResult() zapisujaca pelne
+	 * wyniki
+	 */
 	public void saveResultArray() {
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
@@ -162,6 +282,12 @@ public class MatchingRepository {
 
 	}
 
+	/**
+	 * Metoda zapisujaca pelne wyniki porownania do bazy danych. W wynikach sa
+	 * wszystke tabele z kolumny pierwszej i drugiej z prefixami <b>first_</b>
+	 * oraz <b>second_</b>
+	 * 
+	 */
 	public void saveMatchedResults() {
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
@@ -229,7 +355,7 @@ public class MatchingRepository {
 
 			for (int i = 0; i < firstCompanyRepository.getCompanies().size(); i++) {
 				for (int j = 0; j < secondCompanyRepository.getCompanies().size(); j++) {
-					if (this.distanceTable[i][j] == 0) {
+					if (this.distanceTable[i][j] == this.condition) {
 						insertIteration++;
 						sqlColumnsData += "(";
 						// kolumny z pierwszej tabeli
@@ -255,7 +381,7 @@ public class MatchingRepository {
 						}
 						sqlColumnsData = sqlColumnsData.substring(0, sqlColumnsData.length() - 2);
 						sqlColumnsData += "), ";
-						//INSERT multiple row
+						// INSERT multiple row
 						if (insertIteration % 100 == 0) {
 							sqlColumnsData = sqlColumnsData.substring(0, sqlColumnsData.length() - 2);
 							System.out.println("SQLCOLUMNDATA>>>" + sqlColumnsData);
@@ -267,8 +393,8 @@ public class MatchingRepository {
 					}
 				}
 			}
-			
-			//wstawienie reszty 
+
+			// wstawienie reszty
 			sqlColumnsData = sqlColumnsData.substring(0, sqlColumnsData.length() - 2);
 			System.out.println("SQLCOLUMNDATA>>>" + sqlColumnsData);
 			String sqlInsertEntity = sqlColumnsName + sqlColumnsData;
