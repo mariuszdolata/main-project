@@ -169,10 +169,12 @@ public class MatchingRepository {
 		this.stringConnector = stringConnector;
 		this.firstCompanyRepository = new CompanyRepository(firstEntityRepository, firstMatchedColumn);
 		this.secondCompanyRepository = new CompanyRepository(secondEntityRepository, secondMatchedColumn);
-		this.startMatching(firstCompanyRepository, secondCompanyRepository);
-		this.printMatchingResults();
+		// this.startMatching(firstCompanyRepository, secondCompanyRepository);
+		this.createTableMatchingResults();
+		this.startMatchingWithSaving(firstCompanyRepository, secondCompanyRepository, 0);
+		// this.printMatchingResults();
 		// this.saveResultArray();
-		this.saveMatchedResults();
+		// this.saveMatchedResults();
 	}
 
 	/**
@@ -209,6 +211,45 @@ public class MatchingRepository {
 							distanceTable[i][j] = (byte) score;
 						else
 							distanceTable[i][j] = 120;
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+	}
+
+	public void startMatchingWithSaving(CompanyRepository firstCompanyRepository,
+			CompanyRepository secondCompanyRepository, int saveCondition) {
+
+		// inicjalizacja tabeli wyników uzale¿niona od liczby stringów w
+		// repozytoriach
+		distanceTable = new byte[firstCompanyRepository.getCompanies().size()][secondCompanyRepository.getCompanies()
+				.size()];
+		Levenshtein levenshtein = new Levenshtein();
+
+		for (int i = 0; i < firstCompanyRepository.getCompanies().size(); i++) {
+			for (int j = 0; j < secondCompanyRepository.getCompanies().size(); j++) {
+				CharSequence first = firstCompanyRepository.getCompanies().get(i).getTidyCompanyName();
+				CharSequence second = secondCompanyRepository.getCompanies().get(j).getTidyCompanyName();
+				// System.out.println("zamieniono wartoœci " + first + "|| " +
+				// second);
+				if (first != null && second != null) {
+					counter++;
+					try {
+						double score = levenshtein.distance(
+								firstCompanyRepository.getCompanies().get(i).getTidyCompanyName(),
+								secondCompanyRepository.getCompanies().get(j).getTidyCompanyName());
+						// if (score < 120)
+						// distanceTable[i][j] = (byte) score;
+						// else
+						// distanceTable[i][j] = 120;
+						if (score <= (double) saveCondition) {
+							// Zapis do bazy danych
+							System.out.println("Znaleziono dobrane wyniki i=" + i + ", j=" + j);
+							this.saveOnlyOneRecord(i, j);
+
+						}
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -408,6 +449,146 @@ public class MatchingRepository {
 			e.printStackTrace();
 		}
 
+	}
+
+	public void createTableMatchingResults() {
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
+			Connection connection = DriverManager.getConnection("jdbc:mysql://" + this.stringConnector.getUrl() + "/"
+					+ this.getStringConnector().getDefaultSchema() + "?user=" + this.getStringConnector().getUser()
+					+ "&password=" + this.getStringConnector().getPassword() + "&serverTimezone=UTC");
+
+			Statement stmt = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+			String dropResiltTableSql = "DROP TABLE IF EXISTS `" + this.getStringConnector().getDefaultSchema()
+					+ "`.`matching_results`;";
+			String sqlCreateTable = "CREATE TABLE `" + this.getStringConnector().getDefaultSchema()
+					+ "`.`matching_results` (";
+			for (int i = 0; i < firstCompanyRepository.getEntityRepository().getTableInformation().getColumns()
+					.size(); i++) {
+
+				sqlCreateTable += "`first_"
+						+ firstCompanyRepository.getEntityRepository().getTableInformation().getColumns().get(i)
+								.getColumnName()
+						+ "` " + firstCompanyRepository.getEntityRepository().getTableInformation().getColumns().get(i)
+								.getColumnType()
+						+ ", ";
+
+			}
+			for (int i = 0; i < secondCompanyRepository.getEntityRepository().getTableInformation().getColumns()
+					.size(); i++) {
+
+				sqlCreateTable += "`second_"
+						+ secondCompanyRepository.getEntityRepository().getTableInformation().getColumns().get(i)
+								.getColumnName()
+						+ "` " + secondCompanyRepository.getEntityRepository().getTableInformation().getColumns().get(i)
+								.getColumnType()
+						+ ", ";
+
+			}
+			sqlCreateTable = sqlCreateTable.substring(0, sqlCreateTable.length() - 2);
+			sqlCreateTable += ");";
+			stmt.executeUpdate(dropResiltTableSql);
+			stmt.executeUpdate(sqlCreateTable);
+			System.out.println("sqlPart>>>>" + sqlCreateTable + "<<<");
+		} catch (Exception e) {
+			System.err.println("M: Nie uda³o utworzyc siê tabeli matching_results");
+			e.printStackTrace();
+		}
+
+	}
+
+	public void saveOnlyOneRecord(int firstPosition, int secondPosition) {
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
+			Connection connection = DriverManager.getConnection("jdbc:mysql://" + this.stringConnector.getUrl() + "/"
+					+ this.getStringConnector().getDefaultSchema() + "?user=" + this.getStringConnector().getUser()
+					+ "&password=" + this.getStringConnector().getPassword() + "&serverTimezone=UTC");
+
+			Statement stmt = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+
+			// firstCompanyRepository.getEntityRepository().getEntities().get(1).getEntity("id");
+			// ITERACJA NAZW KOLUMN
+
+			// firstCompanyRepository.getEntityRepository().getTableInformation().getColumns().get(3).getColumnType();
+
+			String sqlColumnsName = "INSERT INTO `" + this.getStringConnector().getDefaultSchema()
+					+ "`.`matching_results` (";
+			// kolumny z pierwszej tabeli
+			for (int iter1 = 0; iter1 < firstCompanyRepository.getEntityRepository().getTableInformation().getColumns()
+					.size(); iter1++) {
+				String columnName = firstCompanyRepository.getEntityRepository().getTableInformation().getColumns()
+						.get(iter1).getColumnName();
+				sqlColumnsName += "first_" + columnName + ", ";
+			}
+			// kolumny z drugiej tabeli
+			for (int iter1 = 0; iter1 < secondCompanyRepository.getEntityRepository().getTableInformation().getColumns()
+					.size(); iter1++) {
+				String columnName = secondCompanyRepository.getEntityRepository().getTableInformation().getColumns()
+						.get(iter1).getColumnName();
+				sqlColumnsName += "second_" + columnName + ", ";
+			}
+			sqlColumnsName = sqlColumnsName.substring(0, sqlColumnsName.length() - 2);
+			sqlColumnsName += ") VALUES ";
+			String sqlColumnsData = " ";
+			int insertIteration = 0;
+
+			// for (int i = 0; i < firstCompanyRepository.getCompanies().size();
+			// i++) {
+			// for (int j = 0; j <
+			// secondCompanyRepository.getCompanies().size(); j++) {
+			// if (this.distanceTable[i][j] == this.condition) {
+			insertIteration++;
+			sqlColumnsData += "(";
+			// kolumny z pierwszej tabeli
+			for (int iter1 = 0; iter1 < firstCompanyRepository.getEntityRepository().getTableInformation().getColumns()
+					.size(); iter1++) {
+				String columnName = firstCompanyRepository.getEntityRepository().getTableInformation().getColumns()
+						.get(iter1).getColumnName();
+				// wartoœæ konkretnej kolumny
+				Object columnValue = firstCompanyRepository.getEntityRepository().getEntityList().get(firstPosition)
+						.getEntity(columnName);
+				sqlColumnsData += "'" + String.valueOf(columnValue) + "', ";
+			}
+			// kolumny z drugiej tabeli
+			for (int iter1 = 0; iter1 < secondCompanyRepository.getEntityRepository().getTableInformation().getColumns()
+					.size(); iter1++) {
+				String columnName = secondCompanyRepository.getEntityRepository().getTableInformation().getColumns()
+						.get(iter1).getColumnName();
+
+				// wartoœæ konkretnej kolumny
+				Object columnValue = secondCompanyRepository.getEntityRepository().getEntityList().get(secondPosition)
+						.getEntity(columnName);
+				sqlColumnsData += "'" + String.valueOf(columnValue) + "', ";
+			}
+			sqlColumnsData = sqlColumnsData.substring(0, sqlColumnsData.length() - 2);
+			sqlColumnsData += "), ";
+			// INSERT multiple row
+			// if (insertIteration % 100 == 0) {
+			// sqlColumnsData = sqlColumnsData.substring(0,
+			// sqlColumnsData.length() - 2);
+			// System.out.println("SQLCOLUMNDATA>>>" + sqlColumnsData);
+			// String sqlInsertEntity = sqlColumnsName + sqlColumnsData;
+			// System.out.println("INSERT>>>>" + sqlInsertEntity);
+			// stmt.executeUpdate(sqlInsertEntity);
+			// sqlColumnsData = "";
+			// }
+			// }
+			// }
+			// }
+
+			// wstawienie reszty
+			sqlColumnsData = sqlColumnsData.substring(0, sqlColumnsData.length() - 2);
+			System.out.println("SQLCOLUMNDATA>>>" + sqlColumnsData);
+			String sqlInsertEntity = sqlColumnsName + sqlColumnsData;
+			System.out.println("INSERT>>>>" + sqlInsertEntity);
+			stmt.executeUpdate(sqlInsertEntity);
+			sqlColumnsData = "";
+			connection.close();
+
+		} catch (Exception e) {
+			System.err.println("M: nie uda³o siê zapisaæ wynikow matchowania MatchingRepository->saveResultArray() ");
+			e.printStackTrace();
+		}
 	}
 
 }

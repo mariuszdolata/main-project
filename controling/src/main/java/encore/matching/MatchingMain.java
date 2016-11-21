@@ -25,11 +25,11 @@ public class MatchingMain {
 		String filePath1 = "F:\\p1.txt";
 		String filePath2 = "F:\\p2.txt";
 		long start = System.currentTimeMillis();
-		StringConnector stringConnector = new StringConnector("localhost", "java", "java", "baza_testowa");
-		EntityRepository firstEntityRepository = new EntityRepository(stringConnector, "tabela1");
-		EntityRepository secondEntityRepository = new EntityRepository(stringConnector, "tabela2");
+		StringConnector stringConnector = new StringConnector("localhost", "java", "java", "kampanie");
+		EntityRepository firstEntityRepository = new EntityRepository(stringConnector, "hbi_temp");
+		EntityRepository secondEntityRepository = new EntityRepository(stringConnector, "osoby");
 		MatchingRepository matchingRepositoryDatabase = new MatchingRepository(stringConnector, firstEntityRepository,
-				"firma", secondEntityRepository, "firma");
+				"Nazwa", secondEntityRepository, "firma");
 
 		long stop = System.currentTimeMillis();
 

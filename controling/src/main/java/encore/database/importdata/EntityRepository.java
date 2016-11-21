@@ -75,7 +75,7 @@ public class EntityRepository {
 		// usuniêcie ostatniego przecinka
 		this.sqlSelectQuery = this.sqlSelectQuery.substring(0, this.sqlSelectQuery.length() - 2);
 		this.sqlSelectQuery += " FROM " + this.databaseName + "." + this.tableName;
-		System.out.println("sql=" + this.sqlSelectQuery);
+		System.out.println("SELECT QUERY sql=" + this.sqlSelectQuery);
 
 	}
 
@@ -99,7 +99,7 @@ public class EntityRepository {
 					// wykrycie obiektu
 					if (columnInformation.getColumnType().contains("int"))
 						columnType = "int";
-					else if (columnInformation.getColumnType().contains("varchar"))
+					else if (columnInformation.getColumnType().contains("char"))
 						columnType = "String";
 					else if (columnInformation.getColumnType().contains("text"))
 						columnType = "String";
@@ -123,8 +123,8 @@ public class EntityRepository {
 					// DODANIE PRZYK£ADOWYCH DANYCH NA PODSTAWIE ISTNIEJ¥CYCH
 					// KOLUMN W
 					// TABELI
-					entity.putEntity(columnName, dataType);
-					System.out.println("Wstawianie wartoœci:" + dataType);
+					// entity.putEntity(columnName, dataType);
+					// System.out.println("Wstawianie wartoœci:" + dataType);
 				}
 				// Dodanie pojedynczego rekordu do listy
 				this.getEntityList().add(entity);
