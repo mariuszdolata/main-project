@@ -151,21 +151,27 @@ public class CompanyRepository {
 			String companyName = company.getCompanyName();
 			// String patternString = proba;
 			// String patternString ="[s]{1}[.]?[ ]?[a]{1}[.]?[ ]?";
-			for (CompanyTypeRegExp reg : companyTypePattern) {
-				Pattern pattern = Pattern.compile(reg.getRegexp(), Pattern.CASE_INSENSITIVE);
-				Matcher matcher = pattern.matcher(companyName);
-				// boolean matcherFound=false;
-				while (matcher.find()) { // zmiana while na IF (jeœli znaleziono
-											// rodzaj spó³ki
+			try {
+				for (CompanyTypeRegExp reg : companyTypePattern) {
+					Pattern pattern = Pattern.compile(reg.getRegexp(), Pattern.CASE_INSENSITIVE);
+					Matcher matcher = pattern.matcher(companyName);
+					// boolean matcherFound=false;
+					while (matcher.find()) { // zmiana while na IF (jeœli znaleziono
+												// rodzaj spó³ki
+						company.setTidyCompanyName(
+								(String) companyName.trim().toUpperCase().subSequence(0, matcher.start()));
+					}
+					if (company.getTidyCompanyName() == null) { // jeœli nie
+																// znaleziono spó³ki
+						company.setTidyCompanyName((String) companyName.toUpperCase());
+					}
 					company.setTidyCompanyName(
-							(String) companyName.trim().toUpperCase().subSequence(0, matcher.start()));
+							company.getTidyCompanyName().trim().replaceAll("( )+", " ").replaceAll("[.]", " "));
 				}
-				if (company.getTidyCompanyName() == null) { // jeœli nie
-															// znaleziono spó³ki
-					company.setTidyCompanyName((String) companyName.toUpperCase());
-				}
-				company.setTidyCompanyName(
-						company.getTidyCompanyName().trim().replaceAll("( )+", " ").replaceAll("[.]", " "));
+			} catch (Exception e) {
+				System.err.println("M: Problem z odnalezieniem typu firmy w CompanyRepository.findCompanyType()\n companyName="+companyName);
+				e.printStackTrace();
+				company.setTidyCompanyName("null");
 			}
 		}
 

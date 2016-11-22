@@ -224,8 +224,8 @@ public class MatchingRepository {
 
 		// inicjalizacja tabeli wyników uzale¿niona od liczby stringów w
 		// repozytoriach
-		distanceTable = new byte[firstCompanyRepository.getCompanies().size()][secondCompanyRepository.getCompanies()
-				.size()];
+//		distanceTable = new byte[firstCompanyRepository.getCompanies().size()][secondCompanyRepository.getCompanies()
+//				.size()];
 		Levenshtein levenshtein = new Levenshtein();
 
 		for (int i = 0; i < firstCompanyRepository.getCompanies().size(); i++) {
@@ -237,17 +237,17 @@ public class MatchingRepository {
 				if (first != null && second != null) {
 					counter++;
 					try {
-						double score = levenshtein.distance(
+						float score = (float)levenshtein.distance(
 								firstCompanyRepository.getCompanies().get(i).getTidyCompanyName(),
 								secondCompanyRepository.getCompanies().get(j).getTidyCompanyName());
 						// if (score < 120)
 						// distanceTable[i][j] = (byte) score;
 						// else
 						// distanceTable[i][j] = 120;
-						if (score <= (double) saveCondition) {
+						if (score <= (float) saveCondition) {
 							// Zapis do bazy danych
 							System.out.println("Znaleziono dobrane wyniki i=" + i + ", j=" + j);
-							this.saveOnlyOneRecord(i, j);
+							this.saveOnlyOneRecord(score, i, j);
 
 						}
 					} catch (Exception e) {
@@ -462,7 +462,7 @@ public class MatchingRepository {
 			String dropResiltTableSql = "DROP TABLE IF EXISTS `" + this.getStringConnector().getDefaultSchema()
 					+ "`.`matching_results`;";
 			String sqlCreateTable = "CREATE TABLE `" + this.getStringConnector().getDefaultSchema()
-					+ "`.`matching_results` (";
+					+ "`.`matching_results` (score FLOAT, ";
 			for (int i = 0; i < firstCompanyRepository.getEntityRepository().getTableInformation().getColumns()
 					.size(); i++) {
 
@@ -497,7 +497,7 @@ public class MatchingRepository {
 
 	}
 
-	public void saveOnlyOneRecord(int firstPosition, int secondPosition) {
+	public void saveOnlyOneRecord(float score, int firstPosition, int secondPosition) {
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
 			Connection connection = DriverManager.getConnection("jdbc:mysql://" + this.stringConnector.getUrl() + "/"
@@ -512,7 +512,7 @@ public class MatchingRepository {
 			// firstCompanyRepository.getEntityRepository().getTableInformation().getColumns().get(3).getColumnType();
 
 			String sqlColumnsName = "INSERT INTO `" + this.getStringConnector().getDefaultSchema()
-					+ "`.`matching_results` (";
+					+ "`.`matching_results` (score, ";
 			// kolumny z pierwszej tabeli
 			for (int iter1 = 0; iter1 < firstCompanyRepository.getEntityRepository().getTableInformation().getColumns()
 					.size(); iter1++) {
@@ -528,7 +528,7 @@ public class MatchingRepository {
 				sqlColumnsName += "second_" + columnName + ", ";
 			}
 			sqlColumnsName = sqlColumnsName.substring(0, sqlColumnsName.length() - 2);
-			sqlColumnsName += ") VALUES ";
+			sqlColumnsName += ") VALUES ("+String.valueOf(score)+", ";
 			String sqlColumnsData = " ";
 			int insertIteration = 0;
 
@@ -538,7 +538,7 @@ public class MatchingRepository {
 			// secondCompanyRepository.getCompanies().size(); j++) {
 			// if (this.distanceTable[i][j] == this.condition) {
 			insertIteration++;
-			sqlColumnsData += "(";
+			sqlColumnsData += " ";
 			// kolumny z pierwszej tabeli
 			for (int iter1 = 0; iter1 < firstCompanyRepository.getEntityRepository().getTableInformation().getColumns()
 					.size(); iter1++) {
