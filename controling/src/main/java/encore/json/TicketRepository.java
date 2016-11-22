@@ -25,7 +25,6 @@ public class TicketRepository {
 	private int nonNumberOfUnsubscribes;
 	private int numberOfNegative;
 	private int nonNumberOfNegative;
-	
 
 	public Set<String> getGroups() {
 		return groups;
@@ -315,21 +314,25 @@ public class TicketRepository {
 					+ Integer.toString(statsTmp.getNegative()));
 		}
 	}
+
 	public String returnAllGroupedStats() {
 		// POBRANIE KLUCZY
 		Iterator<String> iterator = this.groups.iterator();
-		String stats="";
+		String stats = "";
 		while (iterator.hasNext()) {
 			String key = iterator.next();
 			String key2 = String.format("-%1$" + 40 + "s", key);
 			Stats statsTmp = map.get(key);
-//			String tmp=key2 + "::   total: " + Integer.toString(statsTmp.getTotal()) + "   leads: "
-//					+ Integer.toString(statsTmp.getLead()) + "   unsubscribe: "
-//					+ Integer.toString(statsTmp.getUnsubscribe()) + "   negative: "
-//					+ Integer.toString(statsTmp.getNegative());
-			String tmp2=String.format("%-40s %-20s %-10s %-13s %-10s %-19s %-10s %-16s %-10s", key2, "::  total: ", statsTmp.getTotal(), "leads: ", statsTmp.getLead(), "unsubscribes: ", statsTmp.getUnsubscribe(), " negatives: ", statsTmp.getNegative());
-			stats+=tmp2+"\n";
-			
+			// String tmp=key2 + ":: total: " +
+			// Integer.toString(statsTmp.getTotal()) + " leads: "
+			// + Integer.toString(statsTmp.getLead()) + " unsubscribe: "
+			// + Integer.toString(statsTmp.getUnsubscribe()) + " negative: "
+			// + Integer.toString(statsTmp.getNegative());
+			String tmp2 = String.format("%-40s %-20s %-10s %-13s %-10s %-19s %-10s %-16s %-10s", key2, "::  total: ",
+					statsTmp.getTotal(), "leads: ", statsTmp.getLead(), "unsubscribes: ", statsTmp.getUnsubscribe(),
+					" negatives: ", statsTmp.getNegative());
+			stats += tmp2 + "\n";
+
 		}
 		System.out.println(stats);
 		return stats;

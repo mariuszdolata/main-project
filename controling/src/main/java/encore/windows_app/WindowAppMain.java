@@ -72,12 +72,18 @@ public class WindowAppMain {
 		JMenuItem menuItemWyjdz = new JMenuItem("Wyjdz");
 		menuPlik.add(menuItemWyjdz);
 		menuBar.add(menuPlik);
+		menuItemWyjdz.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				wyjdz();
+				
+			}
+		});
 		JMenu menuStatystyka = new JMenu("Statystyka");
 		JMenuItem menuItemDzienna = new JMenuItem("Dzienna");
 		menuStatystyka.add(menuItemDzienna);
 		menuItemDzienna.addActionListener(new ActionListener() {
 
-			@Override
 			public void actionPerformed(ActionEvent e) {
 				createStatystykaDzienna();
 
@@ -87,7 +93,6 @@ public class WindowAppMain {
 		menuStatystyka.add(menuItemMiesieczna);
 		menuItemMiesieczna.addActionListener(new ActionListener() {
 
-			@Override
 			public void actionPerformed(ActionEvent e) {
 				createStatystykaMiesieczna();
 
@@ -98,6 +103,13 @@ public class WindowAppMain {
 		JMenuItem menuItemPomoc = new JMenuItem("Pomoc");
 		menuPomoc.add(menuItemPomoc);
 		menuBar.add(menuPomoc);
+		menuItemPomoc.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				pomoc();
+				
+			}
+		});
 		return menuBar;
 	}
 
@@ -108,76 +120,76 @@ public class WindowAppMain {
 		}
 		if (openSelectedFile != null) {
 			mainFrame.add(tabbedPane);
-//			ticketStats=new JTextArea("Statystyka", 10, 25);	
-						
+			// ticketStats=new JTextArea("Statystyka", 10, 25);
+
 			ticketRespository = new TicketRepository();
 			ticketRespository.readFromFile(openSelectedFile);
 			ticketRespository.showAllStats();
 			ticketRespository.printAllGroups();
 			ticketRespository.createStats();
 			ticketRespository.showAllGroupedStats();
-//			ticketStats.setText(ticketRespository.returnAllGroupedStats());
-			Iterator <String> iterator = ticketRespository.getGroups().iterator();
-			String stat="";
-			//Pomocnicza lista statystyk sluzaca do wyswietlenia danych w tabeli
-			List<Stats> statystyka= new ArrayList<Stats>();
+			// ticketStats.setText(ticketRespository.returnAllGroupedStats());
+			Iterator<String> iterator = ticketRespository.getGroups().iterator();
+			String stat = "";
+			// Pomocnicza lista statystyk sluzaca do wyswietlenia danych w
+			// tabeli
+			List<Stats> statystyka = new ArrayList<Stats>();
 			List<String> keys = new ArrayList<String>();
-			int numberOfCampaign=0;
-			while(iterator.hasNext()){
+			int numberOfCampaign = 0;
+			while (iterator.hasNext()) {
 				numberOfCampaign++;
 				String key = iterator.next();
 				keys.add(key);
 				Stats statsTmp = ticketRespository.getMap().get(key);
 				statystyka.add(statsTmp);
-//				ticketStats.setText(String.format("%-40 %-20", key, "haha"));
+				// ticketStats.setText(String.format("%-40 %-20", key, "haha"));
 			}
-			//dwuwymiarowa tablica do prezentacji wynikow
+			// dwuwymiarowa tablica do prezentacji wynikow
 			Object[][] data = new Object[numberOfCampaign][5];
-			for(int i=0;i<statystyka.size();i++){
-//			for(int i=0;i<10;i++){
-				data[i][0]=keys.get(i);
-				data[i][1]=statystyka.get(i).getTotal();
-				data[i][2]=statystyka.get(i).getLead();
-				data[i][3]=statystyka.get(i).getUnsubscribe();
-				data[i][4]=statystyka.get(i).getNegative();
+			for (int i = 0; i < statystyka.size(); i++) {
+				// for(int i=0;i<10;i++){
+				data[i][0] = keys.get(i);
+				data[i][1] = statystyka.get(i).getTotal();
+				data[i][2] = statystyka.get(i).getLead();
+				data[i][3] = statystyka.get(i).getUnsubscribe();
+				data[i][4] = statystyka.get(i).getNegative();
 			}
 			Object[] columnName = new Object[5];
-			columnName[0]="Nazwa";
-			columnName[1]="Tickety";
-			columnName[2]="Leady";
-			columnName[3]="Unsuby";
-			columnName[4]="Negatywne";
-			JTable tableStats=new JTable(data, columnName);
-//			tableStats.setAutoResizeMode(JTable.WIDTH);
+			columnName[0] = "Nazwa";
+			columnName[1] = "Tickety";
+			columnName[2] = "Leady";
+			columnName[3] = "Unsuby";
+			columnName[4] = "Negatywne";
+			JTable tableStats = new JTable(data, columnName);
+			// tableStats.setAutoResizeMode(JTable.WIDTH);
 			tableStats.setAutoCreateRowSorter(true);
 			tableStats.setRowHeight(20);
 			tableStats.getColumn("Nazwa").setPreferredWidth(250);
 			tableStats.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 15));
-			
+
 			DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
 			rightRenderer.setHorizontalAlignment(JLabel.RIGHT);
 			tableStats.getColumnModel().getColumn(0).setCellRenderer(rightRenderer);
 			panelTicketsStats = new JPanel();
 			tabbedPane.add("statystyka", panelTicketsStats);
-			
+
 			panelTicketsStats.add(tableStats.getTableHeader(), BorderLayout.NORTH);
 			scroll = new JScrollPane(tableStats);
 			scroll.setPreferredSize(new Dimension(600, 500));
 			panelTicketsStats.add(scroll, BorderLayout.SOUTH);
-//			tabbedPane.add("Statystyka", tableStats);
-			
-//			tablePanel.add(table, BorderLayout.CENTER);
-//			tablePanel.add(table.getTableHeader(), BorderLayout.NORTH);
+			// tabbedPane.add("Statystyka", tableStats);
+
+			// tablePanel.add(table, BorderLayout.CENTER);
+			// tablePanel.add(table.getTableHeader(), BorderLayout.NORTH);
 			mainFrame.setVisible(true);
-		}
-		else
-		{
+		} else {
 			JOptionPane.showMessageDialog(null, "nie wybrano pliku z ticketami");
 		}
 	}
 
 	public static void createStatystykaMiesieczna() {
 		System.out.println("Wejœcie w statystykê miesiêczn¹");
+		JOptionPane.showMessageDialog(null, "w trakcie implementacji", "",JOptionPane.INFORMATION_MESSAGE);
 	}
 
 	public static void selectOpenFile() {
@@ -197,16 +209,16 @@ public class WindowAppMain {
 
 		}
 	}
-	
-	public static void saveStatystykaDzienna(){
-		if(ticketRespository!=null){
+
+	public static void saveStatystykaDzienna() {
+		if (ticketRespository != null) {
 			System.out.println("Menu->Plik->Zapisz");
 			JFileChooser fileChooser = new JFileChooser();
 
 			int returnValue = fileChooser.showSaveDialog(null);
 			if (returnValue == JFileChooser.APPROVE_OPTION) {
 				saveSelectedFile = fileChooser.getSelectedFile();
-				
+
 				try {
 					System.out.println(saveSelectedFile.getCanonicalPath().toString());
 				} catch (IOException e1) {
@@ -217,27 +229,35 @@ public class WindowAppMain {
 					BufferedWriter output;
 					output = new BufferedWriter(new FileWriter(saveSelectedFile));
 					Iterator<String> iterator = ticketRespository.getGroups().iterator();
-					while(iterator.hasNext()){
-						String key=iterator.next();
-						Stats statsTmp=ticketRespository.getMap().get(key);
-						//output.write(key+";"+statsTmp.getTotal()+";"+statsTmp.getLead()+";"+statsTmp.getUnsubscribe()+";"+statsTmp.getNegative());
-						output.write(String.format("%-40s %-20s %-10s %-13s %-10s %-19s %-10s %-16s %-10s", key, "::  total: ", statsTmp.getTotal(), "leads: ", statsTmp.getLead(), "unsubscribes: ", statsTmp.getUnsubscribe(), " negatives: ", statsTmp.getNegative()));
+					while (iterator.hasNext()) {
+						String key = iterator.next();
+						Stats statsTmp = ticketRespository.getMap().get(key);
+						// output.write(key+";"+statsTmp.getTotal()+";"+statsTmp.getLead()+";"+statsTmp.getUnsubscribe()+";"+statsTmp.getNegative());
+						output.write(String.format("%-40s %-20s %-10s %-13s %-10s %-19s %-10s %-16s %-10s", key,
+								"::  total: ", statsTmp.getTotal(), "leads: ", statsTmp.getLead(), "unsubscribes: ",
+								statsTmp.getUnsubscribe(), " negatives: ", statsTmp.getNegative()));
 						output.newLine();
 					}
 					output.close();
 				} catch (IOException e) {
-					JOptionPane.showMessageDialog(null, "Nie mo¿na zapisaæ do wskazanego pliku","B³¹d pliku",  JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null, "Nie mo¿na zapisaæ do wskazanego pliku", "B³¹d pliku",
+							JOptionPane.ERROR_MESSAGE);
 					System.err.println("M: Problem z zapisem statystyk do pliku");
 					e.printStackTrace();
 				}
-				
-				
-				
+
 			}
+		} else {
+			JOptionPane.showMessageDialog(null, "Nie wczytano pliku z ticketami", "Brak danych",
+					JOptionPane.ERROR_MESSAGE);
 		}
-		else{
-			JOptionPane.showMessageDialog(null, "Nie wczytano pliku z ticketami", "Brak danych", JOptionPane.ERROR_MESSAGE);
-		}
+	}
+	
+	public static void pomoc(){
+		JOptionPane.showMessageDialog(null, "version 0.1\ncreated by M.D. 2016", "controling",  JOptionPane.INFORMATION_MESSAGE);
+	}
+	public static void wyjdz(){
+		mainFrame.dispose();
 	}
 
 }
